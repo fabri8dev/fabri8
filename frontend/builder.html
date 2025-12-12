@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FABRI8 Builder - AI Website Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            color: #333;
+        }
+        
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            padding: 1rem 5%;
+            color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        
+        .logo .number {
+            color: #fbbf24;
+        }
+        
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        /* Grid Layout */
+        .builder-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        /* Input Section */
+        .input-section {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+        
+        .input-section h2 {
+            color: #6366f1;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        
+        .prompt-input {
+            width: 100%;
+            min-height: 200px;
+            padding: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        
+        .prompt-input:focus {
+            outline: none;
+            border-color: #6366f1;
+        }
+        
+        .prompt-examples {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .prompt-examples h4 {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+        
+        .example {
+            font-size: 0.85rem;
+            color: #6366f1;
+            margin: 0.3rem 0;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+        
+        .example:hover {
+            opacity: 0.7;
+        }
+        
+        .generate-btn {
+            width: 100%;
+            padding: 1rem;
+            margin-top: 1rem;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .generate-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+        }
+        
+        .generate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        /* Agents Progress Section */
+        .agents-section {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+        
+        .agents-section h2 {
+            color: #6366f1;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+        
+        .agent-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #e5e7eb;
+            transition: all 0.3s;
+        }
+        
+        .agent-card.working {
+            background: #fef3c7;
+            border-left-color: #fbbf24;
+            animation: pulse 2s infinite;
+        }
+        
+        .agent-card.completed {
+            background: #d1fae5;
+            border-left-color: #10b981;
+        }
+        
+        .agent-card.error {
+            background: #fee2e2;
+            border-left-color: #ef4444;
+        }
+        
+        .agent-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        
+        .agent-name {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .agent-icon {
+            font-size: 1.5rem;
+        }
+        
+        .agent-status {
+            font-size: 0.85rem;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+        
+        .status-waiting {
+            background: #e5e7eb;
+            color: #6b7280;
+        }
+        
+        .status-working {
+            background: #fbbf24;
+            color: #78350f;
+        }
+        
+        .status-completed {
+            background: #10b981;
+            color: white;
+        }
+        
+        .status-error {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .agent-progress {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 0.3rem;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        /* Preview Section */
+        .preview-section {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            grid-column: 1 / -1;
+        }
+        
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .preview-header h2 {
+            color: #6366f1;
+            font-size: 1.5rem;
+        }
+        
+        .preview-actions {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .preview-btn {
+            padding: 8px 20px;
+            border: 2px solid #6366f1;
+            background: white;
+            color: #6366f1;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .preview-btn:hover {
+            background: #6366f1;
+            color: white;
+        }
+        
+        .preview-btn.primary {
+            background: #6366f1;
+            color: white;
+        }
+        
+        .preview-btn.primary:hover {
+            background: #4f46e5;
+        }
+        
+        .preview-container {
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            min-height: 400px;
+            background: #f8f9fa;
+            overflow: auto;
+        }
+        
+        .preview-iframe {
+            width: 100%;
+            min-height: 600px;
+            border: none;
+            border-radius: 10px;
+        }
+        
+        .code-preview {
+            padding: 1.5rem;
+            background: #1f2937;
+            color: #e5e7eb;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            overflow-x: auto;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .empty-preview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+            color: #9ca3af;
+        }
+        
+        .empty-preview-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        /* Animations */
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.8;
+            }
+        }
+        
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid #f3f4f6;
+            border-top-color: #6366f1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        /* Loading Overlay */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .loading-overlay.active {
+            display: flex;
+        }
+        
+        .loading-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f4f6;
+            border-top-color: #6366f1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .builder-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .input-section, .agents-section, .preview-section {
+                padding: 1.5rem;
+            }
+            
+            .preview-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .preview-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">FABRI<span class="number">8</span></div>
+            <a href="index.html" class="back-btn">← Back to Home</a>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <div class="builder-grid">
+            <!-- Input Section -->
+            <div class="input-section">
+                <h2>🎯 Describe Your Website</h2>
+                <textarea 
+                    id="promptInput" 
+                    class="prompt-input" 
+                    placeholder="Example: Create a modern restaurant website with online booking system, menu display, and contact form. Use a warm color scheme with images of food..."
+                ></textarea>
+                
+                <div class="prompt-examples">
+                    <h4>💡 Quick Examples (click to use):</h4>
+                    <div class="example" onclick="setPrompt(this)">
+                        Build a portfolio website for a photographer with image gallery and contact form
+                    </div>
+                    <div class="example" onclick="setPrompt(this)">
+                        Create an e-commerce landing page for organic skincare products with product showcase
+                    </div>
+                    <div class="example" onclick="setPrompt(this)">
+                        Make a tech startup landing page with features section, pricing table, and CTA buttons
+                    </div>
+                    <div class="example" onclick="setPrompt(this)">
+                        Design a gym website with class schedule, trainer profiles, and membership plans
+                    </div>
+                </div>
+                
+                <button id="generateBtn" class="generate-btn" onclick="startGeneration()">
+                    Generate Website with 8 AI Agents 🚀
+                </button>
+            </div>
+
+            <!-- Agents Progress Section -->
+            <div class="agents-section">
+                <h2>🤖 AI Agents Team</h2>
+                
+                <!-- Agent 1: Project Manager -->
+                <div class="agent-card" id="agent-pm">
+                    <div class="agent-header">
+                        <div class="agent-name">
+                            <span class="agent-icon">📊</span>
+                            <span>Project Manager</span>
+                        </div>
+                        <span class="agent-status status-waiting">Waiting</span>
+                    </div>
+                    <div class="agent-progress">Coordinating the team...</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-pm"></div>
+                    </div>
+                </div>
+
+                <!-- Agent 2: UI/UX Designer -->
+                <div class="agent-card" id="agent-designer">
+                    <div class="agent-header">
+                        <div class="agent-name">
+                            <span class="agent-icon">🎨</span>
+                            <span>UI/UX Designer</span>
+                        </div>
+                        <span class="agent-status status-waiting">Waiting</span>
+                    </div>
+                    <div class="agent-progress">Creating design layout...</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-designer"></div>
+                    </div>
+                </div>
+
+                <!-- Agent 3: Frontend Developer -->
+                <div class="agent-card" id="agent-frontend">
+                    <div class="agent-header">
+                        <div class="agent-name">
+                            <span class="agent-icon">💻</span>
+                            <span>Frontend Developer</span>
+                        </div>
+                        <span class="agent-status status-waiting">Waiting</span>
+                    </div>
+                    <div class="agent-progress">Generating HTML/CSS/JS code...</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-frontend"></div>
+                    </div>
+                </div>
+
+                <!-- Agent 4: Backend Developer -->
+                <div class="agent-card" id="agent-backend">
+                    <div class="agent-header">
+                        <div class="agent-name">
+                            <span class="agent-icon">⚙️</span>
+                            <span>Backend Developer</span>
+                        </div>
+                        <span class="agent-status status-waiting">Waiting</span>
+                    </div>
+                    <div class="agent-progress">Setting up server logic...</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-backend"></div>
+                    </div>
+                </div>
+
+                <!-- Agent 5: Content Writer -->
+                <div class="agent-card" id="agent-content">
+                    <div class="agent-header">
+                        <div class="agent-name">
+                            <span class="agent-icon">✍️</span>
+                            <span>Content Writer</span>
+                        </div>
+                        <span class="agent-status status-waiting">Waiting</span>
+                    </div>
+                    <div class="agent-progress">Writing SEO content...</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-content"></div>
+                    </div>
+                </div>
+
+                <!-- Agent 6: Code Reviewer -->
+                <div class="agent-card" id="agent-reviewer">
+                    <div class="agent-header">
+                        <div class="agent-name">
+                            <span class="agent-icon">🔍</span>
+                            <span>Code Reviewer</span>
+                        </div>
+                        <span class="agent-status status-waiting">Waiting</span>
+                    </div>
+                    <div class="agent-progress">Reviewing code quality...</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-reviewer"></div>
+                    </div>
+                </div>
+
+                <!-- Agent 7: QA Tester -->
+                <div class="agent-card" id="agent-qa">
+                    <div class="agent-header">
+                        <div class="agent-name">
+                            <span class="agent-icon">🧪</span>
+                            <span>QA Tester</span>
+                        </div>
+                        <span class="agent-status status-waiting">Waiting</span>
+                    </div>
+                    <div class="agent-progress">Running tests...</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-qa"></div>
+                    </div>
+                </div>
+
+                <!-- Agent 8: Debug Agent -->
+                <div class="agent-card" id="agent-debug">
+                    <div class="agent-header">
+                        <div class="agent-name">
+                            <span class="agent-icon">🐛</span>
+                            <span>Debug Agent</span>
+                        </div>
+                        <span class="agent-status status-waiting">Waiting</span>
+                    </div>
+                    <div class="agent-progress">Fixing bugs...</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-debug"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preview Section -->
+        <div class="preview-section">
+            <div class="preview-header">
+                <h2>📱 Website Preview</h2>
+                <div class="preview-actions">
+                    <button class="preview-btn" onclick="toggleView('code')">View Code</button>
+                    <button class="preview-btn" onclick="toggleView('preview')">View Preview</button>
+                    <button class="preview-btn primary" onclick="downloadWebsite()" id="downloadBtn" disabled>
+                        Download Website
+                    </button>
+                </div>
+            </div>
+            
+            <div class="preview-container" id="previewContainer">
+                <div class="empty-preview">
+                    <div class="empty-preview-icon">🌐</div>
+                    <p>Your generated website will appear here</p>
+                    <p style="font-size: 0.9rem; margin-top: 0.5rem;">Enter a prompt above and click "Generate Website"</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p>Agents are working on your website...</p>
+        </div>
+    </div>
+
+    <script>
+        let generatedCode = '';
+        let currentView = 'preview';
+
+        // Set example prompt
+        function setPrompt(element) {
+            document.getElementById('promptInput').value = element.textContent.trim();
+        }
+
+        // Start website generation
+        async function startGeneration() {
+            const prompt = document.getElementById('promptInput').value.trim();
+            
+            if (!prompt) {
+                alert('Please enter a description for your website!');
+                return;
+            }
+
+            // Disable generate button
+            const btn = document.getElementById('generateBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Generating...';
+
+            // Reset all agents
+            resetAgents();
+
+            // Show loading overlay
+            // document.getElementById('loadingOverlay').classList.add('active');
+
+            // Simulate agent workflow (Replace with actual API calls)
+            await simulateAgentWorkflow(prompt);
+
+            // Enable download button
+            document.getElementById('downloadBtn').disabled = false;
+
+            // Hide loading overlay
+            // document.getElementById('loadingOverlay').classList.remove('active');
+
+            // Re-enable generate button
+            btn.disabled = false;
+            btn.textContent = 'Generate Website with 8 AI Agents 🚀';
+        }
+
+        // Reset all agents
+        function resetAgents() {
+            const agents = ['pm', 'designer', 'frontend', 'backend', 'content', 'reviewer', 'qa', 'debug'];
+            agents.forEach(agent => {
+                document.getElementById(`agent-${agent}`).className = 'agent-card';
+                document.getElementById(`agent-${agent}`).querySelector('.agent-status').className = 'agent-status status-waiting';
+                document.getElementById(`agent-${agent}`).querySelector('.agent-status').textContent = 'Waiting';
+                document.getElementById(`progress-${agent}`).style.width = '0%';
+            });
+        }
+
+        // Update agent status
+        function updateAgent(agentId, status, message, progress) {
+            const card = document.getElementById(`agent-${agentId}`);
+            const statusEl = card.querySelector('.agent-status');
+            const progressEl = document.getElementById(`progress-${agentId}`);
+            const messageEl = card.querySelector('.agent-progress');
+
+            // Update class
+            card.className = `agent-card ${status}`;
+            
+            // Update status badge
+            statusEl.className = `agent-status status-${status}`;
+            statusEl.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+            
+            // Update message
+            if (message) messageEl.textContent = message;
+            
+            // Update progress
+            progressEl.style.width = `${progress}%`;
+        }
+
+        // Simulate agent workflow (Replace with actual backend API)
+        async function simulateAgentWorkflow(prompt) {
+            const agents = [
+                { id: 'pm', name: 'Project Manager', message: 'Analyzing requirements and creating plan...', duration: 2000 },
+                { id: 'designer', name: 'UI/UX Designer', message: 'Designing layout and components...', duration: 3000 },
+                { id: 'frontend', name: 'Frontend Developer', message: 'Generating HTML, CSS, and JavaScript...', duration: 4000 },
+                { id: 'backend', name: 'Backend Developer', message: 'Setting up API structure...', duration: 3000 },
+                { id: 'content', name: 'Content Writer', message: 'Writing SEO-optimized content...', duration: 2500 },
+                { id: 'reviewer', name: 'Code Reviewer', message: 'Reviewing code quality and security...', duration: 2000 },
+                { id: 'qa', name: 'QA Tester', message: 'Running automated tests...', duration: 2500 },
+                { id: 'debug', name: 'Debug Agent', message: 'Fixing bugs and optimizing...', duration: 2000 }
+            ];
+
+            for (let i = 0; i < agents.length; i++) {
+                const agent = agents[i];
+                
+                // Set to working
+                updateAgent(agent.id, 'working', agent.message, 0);
+                
+                // Simulate progress
+                for (let progress = 0; progress <= 100; progress += 10) {
+                    await new Promise(resolve => setTimeout(resolve, agent.duration / 10));
+                    updateAgent(agent.id, 'working', agent.message, progress);
+                }
+                
+                // Set to completed
+                updateAgent(agent.id, 'completed', '✓ Completed successfully', 100);
+            }
+
+            // Generate final code
+            generateDemoWebsite(prompt);
+        }
+
+        // Generate demo website (Replace with actual API response)
+        function generateDemoWebsite(prompt) {
+            generatedCode = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generated Website - FABRI8</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        .hero {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #667eea;
+        }
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        .feature {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .feature h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+        .cta {
+            text-align: center;
+            padding: 3rem 0;
+        }
+        .cta button {
+            background: #667eea;
+            color: white;
+            padding: 1rem 3rem;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .cta button:hover {
+            transform: translateY(-3px);
+        }
+        footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🌟 Generated by FABRI8</h1>
+        <p>Your website is ready!</p>
+    </header>
+
+    <div class="container">
+        <div class="hero">
+            <h1>Welcome to Your New Website</h1>
+            <p>Based on your prompt: "${prompt}"</p>
+        </div>
+
+        <div class="features">
+            <div class="feature">
+                <h3>🚀 Fast Performance</h3>
+                <p>Optimized code for lightning-fast loading speeds</p>
+            </div>
+            <div class="feature">
+                <h3>📱 Responsive Design</h3>
+                <p>Looks great on all devices - mobile, tablet, and desktop</p>
+            </div>
+            <div class="feature">
+                <h3>🎨 Modern UI</h3>
+                <p>Beautiful, contemporary design that engages visitors</p>
+            </div>
+            <div class="feature">
+                <h3>♿ Accessible</h3>
+                <p>Built with accessibility best practices in mind</p>
+            </div>
+            <div class="feature">
+                <h3>🔒 Secure</h3>
+                <p>Code reviewed for security vulnerabilities</p>
+            </div>
+            <div class="feature">
+                <h3>⚡ SEO Ready</h3>
+                <p>Optimized for search engines to help you rank</p>
+            </div>
+        </div>
+
+        <div class="cta">
+            <button onclick="alert('CTA Button Clicked!')">Get Started</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Generated by FABRI8. All rights reserved.</p>
+    </footer>
+</body>
+</html>`;
+
+            // Display preview
+            updatePreview();
+        }
+
+        // Toggle between code and preview
+        function toggleView(view) {
+            currentView = view;
+            updatePreview();
+        }
+
+        // Update preview based on current view
+        function updatePreview() {
+            const container = document.getElementById('previewContainer');
+            
+            if (!generatedCode) {
+                return;
+            }
+
+            if (currentView === 'code') {
+                container.innerHTML = `<pre class="code-preview">${escapeHtml(generatedCode)}</pre>`;
+            } else {
+                container.innerHTML = `<iframe class="preview-iframe" srcdoc="${escapeHtml(generatedCode)}"></iframe>`;
+            }
+        }
+
+        // Escape HTML for display
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Download generated website
+        function downloadWebsite() {
+            if (!generatedCode) {
+                alert('No website generated yet!');
+                return;
+            }
+
+            const blob = new Blob([generatedCode], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'fabri8-generated-website.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            alert('✅ Website downloaded successfully!');
+        }
+    </script>
+</body>
+</html>
